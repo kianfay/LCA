@@ -1,6 +1,6 @@
 function Node(val) {
   this.val = val;
-  this.left = this.right = null;
+  this.pointingTo = [];
 }
 
 module.exports = Node;
