@@ -3,28 +3,45 @@ function lowestCommonAncestor(roots, node1, node2) {
   const path1 = [];
   const path2 = [];
 
+  var path1col;
+  var path2col;
+
+
   var found = false;
   for(let root of roots){
     // obtain the paths of each node from roots
-    if (getPath(root, path1, node1) && getPath(root, path2, node2)) {
-      var mainRoot = root;
+    path1col = getPath(root, path1, node1, true);
+    path2col = getPath(root, path2, node2, true);
+    if (path1col != [] && path2col != []) {
       found = true;
+      break;
     }
   }
   if(!found) return false;
 
   let i = 0;
-  // compare the two until they differentiate or we hit the end
-  while (i < path1.length && i < path2.length) {
-    if (path1[i] != path2[i]) {
-      break;
+  let maxi = -1;
+  let maxipath = [];
+  for(let j of path1col){
+    for(let f of path2col){
+      // compare the two until they differentiate or we hit the end
+      while (i < j.length && i < f.length) {
+        if (j[i] != f[i]) {
+          break;
+        }
+        i++;
+      }
+
+      if(i > maxi){
+        maxi = i;
+        maxipath = j;
+      }
     }
-    i++;
   }
 
-  return path1[i - 1];
+  return maxipath[i - 1];
 
-  function getPath(root, path, k) {
+  function getPath(root, path, k, init) {
     if (!root) {
       return false;
     }
@@ -32,16 +49,23 @@ function lowestCommonAncestor(roots, node1, node2) {
     // basic DFS
     path.push(root.val);
 
+    var res = [];
+
     if (root.val == k) {
       return true;
     }
 
     for(let pointingTo of root.pointingTo){
-      if(pointingTo && getPath(pointingTo, path, k)){
-        return true;
+      if(pointingTo && getPath(pointingTo, path, k, false)){
+        if (init) {
+          res.push(path);
+          path = [root.val]
+        }
+        else return true;
       }
     }
 
+    if(init) return res
 
     path.pop();
     return false;
